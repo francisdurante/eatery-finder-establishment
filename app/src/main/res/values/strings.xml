@@ -1,3 +1,37 @@
 <resources>
     <string name="app_name">EateryFinderEstablishment</string>
+    <string name="establishment_user">Establishment User</string>
+    <string name="password">Password</string>
+    <string name="login_button_text">LOGIN</string>
+    <string name="edit_your_profile">Edit Your Profile</string>
+    <string name="edit_menu_item">Edit Menu Item</string>
+    <string name="edit_categories">Edit Categories</string>
+    <string name="add_category">Add Category</string>
+    <string name="add_menu">Add Menu</string>
+    <string name="view_your_menu">View Your Menu</string>
+    <string name="est_name">Establishment Name</string>
+    <string name="establishment_address">Establishment Address</string>
+    <string name="establishment_latitude">Establishment Latitude</string>
+    <string name="establishment_longitude">Establishment Longitude</string>
+    <string name="submit">Submit</string>
+
+    <string-array name="emotion_item">
+        <item>HAPPY</item>
+        <item>SAD</item>
+        <item>ANGER</item>
+        <item>CONTEMPT</item>
+        <item>DISGUST</item>
+        <item>FEAR</item>
+        <item>NEUTRAL</item>
+        <item>SURPRISE</item>
+        <item>ALL</item>
+    </string-array>
+
+    <string-array name="age_range">
+        <item>CHILDREN (0 – 14 yrs old)</item>
+        <item>YOUTH (15 – 24 yrs old)</item>
+        <item>ADULT (25 – 59 yrs old)</item>
+        <item>SENIOR (60 and Above yrs old)</item>
+        <item>ALL</item>
+    </string-array>
 </resources>
