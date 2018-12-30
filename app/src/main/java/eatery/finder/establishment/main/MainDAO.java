@@ -2,6 +2,9 @@ package eatery.finder.establishment.main;
 
 import android.content.Context;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -9,10 +12,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 import eatery.finder.establishment.Api.Api;
+import eatery.finder.establishment.Constant;
+
 import static eatery.finder.establishment.Constant.*;
 import static eatery.finder.establishment.Utility.*;
 public class MainDAO {
@@ -89,7 +96,6 @@ public class MainDAO {
         RequestParams rp = new RequestParams();
         rp.add("pass", "get_est_type");
         rp.add("status", status);
-
         api.getByUrl(EST_TYPE, rp, new JsonHttpResponseHandler() {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -107,8 +113,66 @@ public class MainDAO {
                     showAlertDialogBox(ex.getMessage(),ERROR,context,ERROR);
                 }
             }
+        });
+    }
 
-            ;
+    public static void submitEditedProfile(final MainVO vo,String path, final Context context){
+        Api api = new Api();
+        String[] allowedContentTypes = new String[] { "*/*", "application/pdf", "image/png", "image/jpeg" };
+        RequestParams rp = new RequestParams();
+        rp.add("est_name",vo.getEstName());
+        rp.add("lat",vo.getLocationLat());
+        rp.add("lon",vo.getLocationLon());
+        rp.add("emotion",vo.getEmotion());
+        rp.add("age",vo.getAge());
+        rp.add("est_type",vo.getEstTypeName());
+        rp.add("address",vo.getEstAddress());
+        rp.add("est_id",vo.getEstId());
+        rp.add("pass","submit_edit_est");
+        if(!"".equals(path)){
+            RequestParams params = new RequestParams();
+            try {
+                params.put("imageOne",new File(path));
+            }catch (FileNotFoundException e){
+                e.printStackTrace();
+            }
+            AsyncHttpClient client = new AsyncHttpClient();
+            client.put(SUBMIT_EDITED_PROFILE,params,new JsonHttpResponseHandler(){
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    super.onSuccess(statusCode, headers, response);
+                    System.out.println(response + " aaaaaaaaaaaa11");
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    super.onFailure(statusCode, headers, throwable, errorResponse);
+                    System.out.println(errorResponse + " aaaaaaaaaaaa22");
+                }
+            });
+
+        }
+        rp.setUseJsonStreamer(false);
+        api.postByUrl(SUBMIT_EDITED_PROFILE,rp,new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response){
+                try {
+                    JSONObject object = new JSONObject(response.toString());
+                    String responseStatus = object.getString("status");
+                    if("success".equals(responseStatus)){
+                        vo.setSubmitEditProfileStatus(1);
+                    }else{
+                        vo.setSubmitCategoryStatus(2);
+                    }
+                } catch (JSONException e) {
+                    showAlertDialogBox(e.getMessage(),ERROR,context,ERROR);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                System.out.println(errorResponse + " 12312312312");
+            }
         });
     }
 }

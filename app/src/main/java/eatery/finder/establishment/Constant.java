@@ -20,6 +20,12 @@ public class Constant {
     public static final String FAIL_GETTING_INFORMATION = "Fail getting information";
     public static final String GETTING_INFORMATION = "Getting Information...";
     public static final String EDIT_PROFILE_DIALOG_TITLE = "Edit Profile";
+    public static final String EDIT_PROFILE_SUCCESS = "Edited...";
+    public static final String EDIT_PROFILE_ERROR = "Error on submitting information...";
+    public static final int MY_CAMERA_PERMISSION_CODE = 100;
+    public static final int CAMERA_REQUEST = 1888;
+    public static final int PICK_PHOTO_REQUEST = 1999;
+    public static final String SUBMITTING = "Submiting...";
 
     //URL API
     public static final String GET_EST_INFORMATION = "http://darkened-career.000webhostapp.com/api/get_all_est_user";
@@ -27,8 +33,6 @@ public class Constant {
     public static final String PUBLIC_IMAGE_PATH = "https://darkened-career.000webhostapp.com/images/";
     public static final String SUBMIT_CATEGORY = "http://darkened-career.000webhostapp.com/api/add_category";
     public static final String EST_TYPE = "http://darkened-career.000webhostapp.com/api/get_all_est_type";
+    public static final String SUBMIT_EDITED_PROFILE = "http://darkened-career.000webhostapp.com/api/submit_edit_establishment_setting";
 
-//    api/add_category?cat_name=" + categoryName +
-//            "&pass=est_category" +
-//            "&added_by=" + added_by)
 }

@@ -31,6 +31,9 @@ public class Api {
     public void postByUrl(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         client.post(url, params, responseHandler);
     }
+    public void postWIthImage(String url,RequestParams params, AsyncHttpResponseHandler responseHandler){
+        client.put(url, params, responseHandler);
+    }
     private String getAbsoluteUrl(String relativeUrl) {
         return BASE_URL + relativeUrl;
     }

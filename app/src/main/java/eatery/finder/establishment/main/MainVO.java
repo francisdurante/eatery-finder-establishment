@@ -2,7 +2,6 @@ package eatery.finder.establishment.main;
 
 public class MainVO {
     private String categoryName;
-    private int submitCategoryStatus;
     private String id;
     private String estId;
     private String estName;
@@ -17,8 +16,19 @@ public class MainVO {
     private String estAddress;
     private String estUserId;
     private String estTypeName;
-    private int estTypeId;
     private String[] _estTypeName;
+    private int estTypeId;
+    private int submitCategoryStatus;
+    private int submitEditProfileStatus;
+
+
+    public int getSubmitEditProfileStatus() {
+        return submitEditProfileStatus;
+    }
+
+    public void setSubmitEditProfileStatus(int submitEditProfileStatus) {
+        this.submitEditProfileStatus = submitEditProfileStatus;
+    }
 
     public String[] get_estTypeName() {
         return _estTypeName;
