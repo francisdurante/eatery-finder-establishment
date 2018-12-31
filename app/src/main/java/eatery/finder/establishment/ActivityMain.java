@@ -58,6 +58,7 @@ public class ActivityMain extends AppCompatActivity {
     EditText price;
     ImageView itemPicPath;
     Spinner statusItem;
+    EditText currentItemName;
     AlertDialog.Builder dialogBuilderEditItem;
     int itemId;
 
@@ -160,8 +161,6 @@ public class ActivityMain extends AppCompatActivity {
                         alertDialog.show();
                         hideProgressBar();
 
-
-
                         submit.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -188,7 +187,7 @@ public class ActivityMain extends AppCompatActivity {
                                     }
                                     try {
                                         MainDAO.submitEditedProfile(vo,newFilePath, mContext);
-                                        new CountDownTimer(5000, 1000) {
+                                        new CountDownTimer(7000, 1000) {
                                             @Override
                                             public void onTick(long millisUntilFinished) {
                                             }
@@ -238,6 +237,7 @@ public class ActivityMain extends AppCompatActivity {
                 price = dialogView.findViewById(R.id.price_edit);
                 itemPicPath = dialogView.findViewById(R.id.item_picture_edit);
                 statusItem = dialogView.findViewById(R.id.item_status_edit);
+                currentItemName = dialogView.findViewById(R.id.current_item_name_edit);
                 Button submitEditedMenu = dialogView.findViewById(R.id.submit_edited_item);
                 Button chooseItemPic = dialogView.findViewById(R.id.select_image_item_edit);
 
@@ -254,8 +254,8 @@ public class ActivityMain extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         newFilePathFile = "";
-                        if(!"".equals(price.getText().toString())){
-                            vo.setItemName(itemName.getSelectedItem().toString());
+                        if(!"".equals(price.getText().toString()) || !"".equals(currentItemName.getText().toString())){
+                            vo.setItemName(currentItemName.getText().toString());
                             vo.setItemCategory(categoryName.getSelectedItem().toString());
                             vo.setPrice(Double.parseDouble(price.getText().toString()));
                             vo.setItemStatus("ACTIVE".equals(statusItem.getSelectedItem().toString()) ? "1" : "0");
@@ -472,7 +472,7 @@ public class ActivityMain extends AppCompatActivity {
         return path;
     }
 
-    public void getItemInformation(String itemName, final MainVO vo, final ArrayAdapter cat, final ArrayAdapter status){
+    public void getItemInformation(final String itemName, final MainVO vo, final ArrayAdapter cat, final ArrayAdapter status){
         MainDAO.getItemInformation(Utility.getString("id", mContext), itemName, vo, mContext);
         new CountDownTimer(3000, 1000) {
             @Override
@@ -486,6 +486,7 @@ public class ActivityMain extends AppCompatActivity {
                 categoryName.setSelection(cat.getPosition(vo.getItemCategory()));
                 statusItem.setSelection(status.getPosition(vo.getItemStatus()));
                 price.setText(Double.toString(vo.getPrice()));
+                currentItemName.setText(itemName);
                 itemId = Integer.parseInt(vo.getItemId());
                 oldPathItem = vo.getItemPicPath();
                 Picasso.with(mContext)

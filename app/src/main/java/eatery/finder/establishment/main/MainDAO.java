@@ -295,7 +295,6 @@ public class MainDAO {
             upload = 1;
         }
             try {
-                System.out.println(ItemId + " aaaaaaaaaaaaaaaa");
                 RequestParams rp = new RequestParams();
                 rp.put("id", ItemId);
                 rp.put("cat_name", vo.getItemCategory());
