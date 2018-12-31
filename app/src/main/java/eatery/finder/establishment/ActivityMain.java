@@ -59,6 +59,7 @@ public class ActivityMain extends AppCompatActivity {
     ImageView itemPicPath;
     Spinner statusItem;
     EditText currentItemName;
+    Spinner categoryStatus;
     AlertDialog.Builder dialogBuilderEditItem;
     int itemId;
 
@@ -336,6 +337,94 @@ public class ActivityMain extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
             @Override
             public void onClick(View v) {
+                showProgressBar(GETTING_INFORMATION,mContext);
+                final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(mContext);
+                dialogBuilder.setTitle(EDIT_CATEGORY_DIALOG_TITLE);
+                dialogBuilder.setIcon(R.drawable.ic_category_add_icon);
+                LayoutInflater inflater = getLayoutInflater();
+                final View dialogView = inflater.inflate(R.layout.edit_category, null);
+                final Spinner categoryItem = dialogView.findViewById(R.id.category_name_edit);
+                categoryStatus = dialogView.findViewById(R.id.category_name_status_edit);
+                final EditText currentCategoryName = dialogView.findViewById(R.id.current_category_name_edit);
+                Button submitEditCategory = dialogView.findViewById(R.id.submit_edited_category);
+
+                final MainVO vo = new MainVO();
+
+                MainDAO.getCategoryByEstId(Utility.getString("id",mContext),vo,mContext,"all_active");
+                new CountDownTimer(5000, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        hideProgressBar();
+                        final ArrayAdapter<CharSequence> statusList = ArrayAdapter.createFromResource(mContext, R.array.status, android.R.layout.simple_spinner_item);
+                        final ArrayAdapter<CharSequence> categoryNameList = new ArrayAdapter(mContext, android.R.layout.simple_spinner_item, vo.get_itemCategory());
+                        categoryItem.setAdapter(categoryNameList);
+                        categoryStatus.setAdapter(statusList);
+                        categoryItem.setSelection(0);
+                        currentCategoryName.setText(categoryItem.getSelectedItem().toString());
+
+                        getCategoryInformation(Utility.getString("id",mContext),categoryItem.getSelectedItem().toString(),vo,statusList);
+                        hideProgressBar();
+                        categoryItem.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                currentCategoryName.setText(parent.getItemAtPosition(position).toString());
+                                getCategoryInformation(Utility.getString("id",mContext),categoryItem.getSelectedItem().toString(),vo,statusList);
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
+
+                        dialogBuilder.setView(dialogView);
+                        AlertDialog alertDialog = dialogBuilder.create();
+                        alertDialog.show();
+                    }
+                }.start();
+
+                submitEditCategory.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showProgressBar(SUBMITTING, mContext);
+                        if (!"".equals(currentCategoryName.getText().toString())) {
+                            vo.setCategoryName(currentCategoryName.getText().toString());
+                            vo.setCategoryStatus(categoryStatus.getSelectedItem().toString());
+                            MainDAO.submitEditedCategory(vo, Utility.getString("id", mContext), mContext);
+                            new CountDownTimer(5000, 1000) {
+
+                                @Override
+                                public void onTick(long millisUntilFinished) {
+
+                                }
+
+                                @Override
+                                public void onFinish() {
+                                    hideProgressBar();
+                                    switch (vo.getCategoryEditStatus()) {
+                                        case 1:
+                                            showAlertDialogBox(SUCCESS, SUCCESS, mContext, SUCCESS);
+                                            break;
+                                        case 2:
+                                            showAlertDialogBox(ERROR, ERROR, mContext, ERROR);
+                                            break;
+                                        default:
+                                            showAlertDialogBox(CHECK_CONNECTION, ERROR, mContext, ERROR);
+                                            break;
+                                    }
+                                }
+                            }.start();
+                        }else{
+                            showToastMessageShort(COMPLETE_FIELD_VALIDATION,mContext);
+                        }
+                    }
+                });
+
             }
         });
 
@@ -497,4 +586,21 @@ public class ActivityMain extends AppCompatActivity {
             }
         }.start();
     }
+    public void getCategoryInformation(String estId, String categoryName, final MainVO vo, final ArrayAdapter status){
+        showProgressBar("Getting information for " + categoryName + "...",mContext);
+        MainDAO.getCategoryInformation(estId, categoryName, vo, mContext);
+        new CountDownTimer(3000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                hideProgressBar();
+                categoryStatus.setSelection(status.getPosition(vo.getCategoryStatus()));
+            }
+        }.start();
+    }
+
 }

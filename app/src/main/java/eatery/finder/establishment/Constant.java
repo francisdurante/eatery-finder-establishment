@@ -20,6 +20,7 @@ public class Constant {
     public static final String FAIL_GETTING_INFORMATION = "Fail getting information";
     public static final String GETTING_INFORMATION = "Getting Information...";
     public static final String EDIT_PROFILE_DIALOG_TITLE = "Edit Profile";
+    public static final String EDIT_CATEGORY_DIALOG_TITLE = "Edit Category";
     public static final String EDIT_ITEM_DIALOG_TITLE = "Edit Menu";
     public static final String EDIT_PROFILE_SUCCESS = "Edited...";
     public static final String EDIT_PROFILE_ERROR = "Error on submitting information...";
@@ -40,4 +41,6 @@ public class Constant {
     public static final String GET_CATEGORY_NAME = "http://darkened-career.000webhostapp.com/api/get_category";
     public static final String GET_ITEM_INFORMATION = "http://darkened-career.000webhostapp.com/api/edit_product";
     public static final String SUBMIT_EDITED_ITEM = "http://darkened-career.000webhostapp.com/api/submit_edited_product";
+    public static final String GET_CATEGORY_INFORMATION = "http://darkened-career.000webhostapp.com/api/edit_category";
+    public static final String SUBMIT_EDITED_CATEGORT = "http://darkened-career.000webhostapp.com/api/submit_edited_category";
 }

@@ -335,4 +335,68 @@ public class MainDAO {
                 showAlertDialogBox(e.getMessage(),ERROR,context,ERROR);
             }
         }
+        public static void getCategoryInformation(String estId, String categoryName,final MainVO vo, final Context context){
+            Api api = new Api();
+            RequestParams rp = new RequestParams();
+            rp.add("pass","edit_category");
+            rp.add("est_id",estId);
+            rp.add("cat_name",categoryName);
+
+            api.getByUrl(GET_CATEGORY_INFORMATION,rp,new JsonHttpResponseHandler(){
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    try {
+                        JSONObject object = new JSONObject(response.toString());
+                        String responseStatus = object.getString("status");
+                        if("success".equals(responseStatus)){
+                            JSONObject data = object.getJSONObject("data");
+                            vo.setCategoryId(data.getInt("id"));
+                            vo.setCategoryStatus(data.getInt("status") == 1 ? "ACTIVE" : "INACTIVE");
+                        }else{
+                            showAlertDialogBox(CHECK_CONNECTION,ERROR,context,ERROR);
+                        }
+                    }catch (JSONException e){
+                        showAlertDialogBox(e.getMessage(),ERROR,context,ERROR);
+                    }
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    super.onFailure(statusCode, headers, throwable, errorResponse);
+                }
+            });
+
+        }
+
+        public static void submitEditedCategory(final MainVO vo, String estId, final Context context){
+            Api api = new Api();
+            RequestParams rp = new RequestParams();
+            rp.add("cat_id",Integer.toString(vo.getCategoryId()));
+            rp.add("pass","submit_edited_category");
+            rp.add("cat_name",vo.getCategoryName());
+            rp.add("status","ACTIVE".equals(vo.getCategoryStatus())?"1":"0");
+            rp.add("est_id",estId);
+
+            api.getByUrl(SUBMIT_EDITED_CATEGORT,rp, new JsonHttpResponseHandler(){
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    try {
+                        JSONObject object = new JSONObject(response.toString());
+                        String responseStatus = object.getString("status");
+                        if("success".equals(responseStatus)){
+                            vo.setCategoryEditStatus(1);
+                        }else{
+                            vo.setCategoryEditStatus(2);
+                        }
+                    }catch (JSONException e){
+                        showAlertDialogBox(e.getMessage(),ERROR,context,ERROR);
+                    }
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+
+                }
+            });
+        }
     }

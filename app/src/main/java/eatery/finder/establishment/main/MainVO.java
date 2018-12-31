@@ -30,6 +30,33 @@ public class MainVO {
     private int submitItemStatus;
     private String[] _itemCategory;
     private String[] _itemNameList;
+    private int categoryId;
+    private String categoryStatus;
+    private int categoryEditStatus;
+
+    public int getCategoryEditStatus() {
+        return categoryEditStatus;
+    }
+
+    public void setCategoryEditStatus(int categoryEditStatus) {
+        this.categoryEditStatus = categoryEditStatus;
+    }
+
+    public String getCategoryStatus() {
+        return categoryStatus;
+    }
+
+    public void setCategoryStatus(String categoryStatus) {
+        this.categoryStatus = categoryStatus;
+    }
+
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
+    }
 
     public int getSubmitItemStatus() {
         return submitItemStatus;
