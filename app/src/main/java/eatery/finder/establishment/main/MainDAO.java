@@ -132,47 +132,208 @@ public class MainDAO {
         if(!"".equals(path)){
             RequestParams params = new RequestParams();
             try {
+                params.put("est_name",vo.getEstName());
+                params.put("lat",vo.getLocationLat());
+                params.put("lon",vo.getLocationLon());
+                params.put("emotion",vo.getEmotion());
+                params.put("age",vo.getAge());
+                params.put("est_type",vo.getEstTypeName());
+                params.put("address",vo.getEstAddress());
+                params.put("est_id",vo.getEstId());
+                params.put("pass","submit_edit_est");
                 params.put("imageOne",new File(path));
             }catch (FileNotFoundException e){
                 e.printStackTrace();
             }
             AsyncHttpClient client = new AsyncHttpClient();
-            client.put(SUBMIT_EDITED_PROFILE,params,new JsonHttpResponseHandler(){
+            client.post(SUBMIT_EDITED_PROFILE,params,new JsonHttpResponseHandler(){
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                    super.onSuccess(statusCode, headers, response);
-                    System.out.println(response + " aaaaaaaaaaaa11");
+                    try {
+                        JSONObject object = new JSONObject(response.toString());
+                        String responseStatus = object.getString("status");
+                        if ("success".equals(responseStatus)) {
+                            vo.setSubmitEditProfileStatus(1);
+                        } else {
+                            vo.setSubmitCategoryStatus(2);
+                        }
+                    }catch(JSONException e){
+                        showAlertDialogBox(e.getMessage(),ERROR,context,ERROR);
+                    }
                 }
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                    super.onFailure(statusCode, headers, throwable, errorResponse);
-                    System.out.println(errorResponse + " aaaaaaaaaaaa22");
                 }
             });
 
+        }else {
+            api.postByUrl(SUBMIT_EDITED_PROFILE, rp, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    try {
+                        JSONObject object = new JSONObject(response.toString());
+                        String responseStatus = object.getString("status");
+                        if ("success".equals(responseStatus)) {
+                            vo.setSubmitEditProfileStatus(1);
+                        } else {
+                            vo.setSubmitCategoryStatus(2);
+                        }
+                    } catch (JSONException e) {
+                        showAlertDialogBox(e.getMessage(), ERROR, context, ERROR);
+                    }
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                }
+            });
         }
-        rp.setUseJsonStreamer(false);
-        api.postByUrl(SUBMIT_EDITED_PROFILE,rp,new JsonHttpResponseHandler(){
+    }
+    public static void getProductNameByEstId(final String estId, final MainVO vo, final Context context, final String status){
+        Api api = new Api();
+        RequestParams rp = new RequestParams();
+        rp.add("for_process",status);
+        rp.add("pass","get_product");
+        rp.add("id",estId);
+
+        api.getByUrl(GET_EST_ITEM_NAME,rp,new JsonHttpResponseHandler(){
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response){
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject object = new JSONObject(response.toString());
                     String responseStatus = object.getString("status");
                     if("success".equals(responseStatus)){
-                        vo.setSubmitEditProfileStatus(1);
-                    }else{
-                        vo.setSubmitCategoryStatus(2);
+                        JSONArray datas = new JSONArray(object.getString("data"));
+                        String[] estProducts = new String[datas.length()];
+                        for(int x = 0; x < datas.length(); x++){
+                            estProducts[x] = datas.getJSONObject(x).getString("item_name");
+                        }
+                        vo.set_itemNameList(estProducts);
+                        getCategoryByEstId(estId,vo,context,status);
                     }
-                } catch (JSONException e) {
+                }catch (JSONException e){
                     showAlertDialogBox(e.getMessage(),ERROR,context,ERROR);
                 }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                System.out.println(errorResponse + " 12312312312");
+
+            }
+        });
+
+    }
+    public static void getCategoryByEstId(String estId, final MainVO vo, final Context context, String status){
+        Api api = new Api();
+        RequestParams rp = new RequestParams();
+        rp.add("for_process",status);
+        rp.add("pass","est_get_category");
+        rp.add("id",estId);
+
+        api.getByUrl(GET_CATEGORY_NAME,rp,new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    JSONObject object = new JSONObject(response.toString());
+                    String responseStatus = object.getString("status");
+                    System.out.println(responseStatus + " aaaaaaaaaaaa");
+                    if("success".equals(responseStatus)){
+                        JSONArray datas = new JSONArray(object.getString("data"));
+                        String[] categoryName = new String[datas.length()];
+                        for(int x = 0; x < datas.length(); x++){
+                            categoryName[x] = datas.getJSONObject(x).getString("category_name");
+                            System.out.println(categoryName[x] + " aaaaaaaaaaaa");
+                        }
+                        vo.set_itemCategory(categoryName);
+                    }
+                }catch (JSONException e){
+                    showAlertDialogBox(e.getMessage(),ERROR,context,ERROR);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+
             }
         });
     }
-}
+    public static void getItemInformation(String estId, String itemName, final MainVO vo, final Context context){
+        Api api = new Api();
+        RequestParams rp = new RequestParams();
+        rp.add("pass","get_product");
+        rp.add("est_id",estId);
+        rp.add("item_name",itemName);
+
+        api.getByUrl(GET_ITEM_INFORMATION,rp,new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    JSONObject object = new JSONObject(response.toString());
+                    String responseStatus = object.getString("status");
+                    System.out.println(response.toString() + " aaaaaaaaaaaaaa");
+                    if("success".equals(responseStatus)){
+                        JSONObject data = object.getJSONObject("data");
+                        vo.setItemId(data.getString("item_id"));
+                        vo.setItemName(data.getString("item_name"));
+                        vo.setItemPicPath(picUrl(data.getString("path")));
+                        vo.setPrice(data.getInt("price"));
+                        vo.setItemStatus(data.getString("item_status").equals("1")?"ACTIVE":"INACTIVE");
+                        vo.setItemCategory(data.getString("category_name"));
+                    }
+                }catch (JSONException e)
+                {
+                    showAlertDialogBox(e.getMessage(),ERROR,context,ERROR);
+                }
+            }
+        });
+    }
+
+    public static void submitEditItemMenu(final MainVO vo, String estId, String path, final Context context,int ItemId){
+        int upload = 0;
+        if(!"".equals(path)) {
+            upload = 1;
+        }
+            try {
+                System.out.println(ItemId + " aaaaaaaaaaaaaaaa");
+                RequestParams rp = new RequestParams();
+                rp.put("id", ItemId);
+                rp.put("cat_name", vo.getItemCategory());
+                rp.put("status", vo.getItemStatus());
+                rp.put("est_id", estId);
+                rp.put("item_name", vo.getItemName());
+                rp.put("price", vo.getPrice());
+                rp.put("pass", "submit_edited_product");
+                rp.put("upload", upload);
+                if(upload == 1) {
+                    rp.put("imageOne", new File(path));
+                }
+                AsyncHttpClient client = new AsyncHttpClient();
+                client.post(SUBMIT_EDITED_ITEM, rp,new JsonHttpResponseHandler(){
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        try {
+                            JSONObject object = new JSONObject(response.toString());
+                            String responseStatus = object.getString("status");
+                            System.out.println(response.toString() + " aaaaaaaaaaaaa");
+                            if ("success".equals(responseStatus)) {
+                                vo.setSubmitItemStatus(1);
+                            } else {
+                                vo.setSubmitItemStatus(2);
+                            }
+                        }catch(JSONException e){
+                            showAlertDialogBox(e.getMessage(),ERROR,context,ERROR);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+
+                    }
+                });
+
+            }catch (FileNotFoundException e){
+                showAlertDialogBox(e.getMessage(),ERROR,context,ERROR);
+            }
+        }
+    }

@@ -20,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -47,9 +48,20 @@ public class ActivityMain extends AppCompatActivity {
     Context mContext = this;
     ImageView frontPicEdit;
     File finalFile;
+    File finalFileItem;
     String oldPath;
+    String oldPathItem;
     String newFilePath = "";
+    String newFilePathFile = "";
+    Spinner itemName;
+    Spinner categoryName;
+    EditText price;
+    ImageView itemPicPath;
+    Spinner statusItem;
+    AlertDialog.Builder dialogBuilderEditItem;
+    int itemId;
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +69,14 @@ public class ActivityMain extends AppCompatActivity {
         init();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public void init(){
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_CAMERA_PERMISSION_CODE);
+        }
         Button editProfile = findViewById(R.id.edit_profile);
         Button editMenuItem = findViewById(R.id.edit_menu_item);
         Button editCategory = findViewById(R.id.edit_categories);
@@ -98,34 +117,15 @@ public class ActivityMain extends AppCompatActivity {
                         final Spinner age = dialogView.findViewById(R.id.age_edit);
                         final Spinner estTypeName = dialogView.findViewById(R.id.est_type_edit);
                         frontPicEdit = dialogView.findViewById(R.id.front_store_edit);
-                        //Button takePhoto = dialogView.findViewById(R.id.take_photo);
                         Button selectFromGallery = dialogView.findViewById(R.id.select_image);
                         Button submit = dialogView.findViewById(R.id.submit_edited_profile);
-
-//                        takePhoto.setOnClickListener(new View.OnClickListener() {
-//                            @RequiresApi(api = Build.VERSION_CODES.M)
-//                            @Override
-//                            public void onClick(View v) {
-//                                if (checkSelfPermission(Manifest.permission.CAMERA)
-//                                        != PackageManager.PERMISSION_GRANTED
-//                                        || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-//                                    requestPermissions(new String[]{Manifest.permission.CAMERA,
-//                                                    Manifest.permission.READ_EXTERNAL_STORAGE,
-//                                            Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                                            MY_CAMERA_PERMISSION_CODE);
-//                                } else {
-//                                    Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-//                                    startActivityForResult(cameraIntent, CAMERA_REQUEST);
-//                                }
-//                            }
-//                        });
 
                         selectFromGallery.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 Intent pickPhoto = new Intent(Intent.ACTION_PICK,
                                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                startActivityForResult(pickPhoto , PICK_PHOTO_REQUEST);
+                                startActivityForResult(pickPhoto , PICK_PHOTO_REQUEST_PROFILE);
                             }
                         });
 
@@ -137,10 +137,14 @@ public class ActivityMain extends AppCompatActivity {
 
                         ArrayAdapter<CharSequence> emotionList = ArrayAdapter.createFromResource(mContext, R.array.emotion_item, android.R.layout.simple_spinner_item);
                         ArrayAdapter<CharSequence> ageList = ArrayAdapter.createFromResource(mContext, R.array.age_range, android.R.layout.simple_spinner_item);
-                        ArrayAdapter<CharSequence> estTypeList = new ArrayAdapter(mContext,android.R.layout.simple_spinner_item,vo.get_estTypeName());
+                        try {
+                            ArrayAdapter<CharSequence> estTypeList = new ArrayAdapter(mContext, android.R.layout.simple_spinner_item, vo.get_estTypeName());
+                            estTypeName.setAdapter(estTypeList);
+                            estTypeName.setSelection(estTypeList.getPosition(vo.getEstTypeName()));
+                        }catch (Exception e){
+                            showAlertDialogBox(CHECK_CONNECTION,ERROR,mContext,ERROR);
+                        }
 
-                        estTypeName.setAdapter(estTypeList);
-                        estTypeName.setSelection(estTypeList.getPosition(vo.getEstTypeName()));
                         emotion.setSelection(emotionList.getPosition(vo.getEmotion()));
                         age.setSelection(ageList.getPosition(vo.getAge()));
 
@@ -161,10 +165,12 @@ public class ActivityMain extends AppCompatActivity {
                         submit.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
+
                                 if(!"".equals(estName.getText().toString()) || !"".equals(estAddress.getText().toString())||
                                 !"".equals(estLat.getText().toString()) || !"".equals(estLon.getText().toString()) ||
                                 !"".equals(emotion.getSelectedItem().toString()) || !"".equals(age.getSelectedItem().toString()) ||
                                 !"".equals(estTypeName.getSelectedItem().toString())) {
+                                    newFilePath = "";
                                     showProgressBar(SUBMITTING,mContext);
                                     File newPath = new File("");
                                     final MainVO vo = new MainVO();
@@ -219,9 +225,113 @@ public class ActivityMain extends AppCompatActivity {
         editMenuItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //redirect to editMenu
+                showProgressBar(GETTING_INFORMATION,mContext);
+                final MainVO vo = new MainVO();
+                dialogBuilderEditItem = new AlertDialog.Builder(mContext);
+                dialogBuilderEditItem.setTitle(EDIT_ITEM_DIALOG_TITLE);
+                dialogBuilderEditItem.setIcon(R.drawable.ic_menu);
+                LayoutInflater inflater = getLayoutInflater();
+                final View dialogView = inflater.inflate(R.layout.edit_menu, null);
+
+                itemName = dialogView.findViewById(R.id.item_name_edit);
+                categoryName = dialogView.findViewById(R.id.item_category_choose_edit);
+                price = dialogView.findViewById(R.id.price_edit);
+                itemPicPath = dialogView.findViewById(R.id.item_picture_edit);
+                statusItem = dialogView.findViewById(R.id.item_status_edit);
+                Button submitEditedMenu = dialogView.findViewById(R.id.submit_edited_item);
+                Button chooseItemPic = dialogView.findViewById(R.id.select_image_item_edit);
+
+                chooseItemPic.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent pickPhoto = new Intent(Intent.ACTION_PICK,
+                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        startActivityForResult(pickPhoto , PICK_PHOTO_REQUEST_ITEM);
+                    }
+                });
+
+                submitEditedMenu.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        newFilePathFile = "";
+                        if(!"".equals(price.getText().toString())){
+                            vo.setItemName(itemName.getSelectedItem().toString());
+                            vo.setItemCategory(categoryName.getSelectedItem().toString());
+                            vo.setPrice(Double.parseDouble(price.getText().toString()));
+                            vo.setItemStatus("ACTIVE".equals(statusItem.getSelectedItem().toString()) ? "1" : "0");
+                            showProgressBar(SUBMITTING,mContext);
+                            if (!oldPathItem.contains("https://darkened-career.000webhostapp.com/images/")) {
+                                newFilePathFile = finalFileItem.getPath();
+                            }
+                            MainDAO.submitEditItemMenu(vo,Utility.getString("id",mContext),newFilePathFile,mContext,itemId);
+                            new CountDownTimer(5000, 1000) {
+                                @Override
+                                public void onTick(long millisUntilFinished) {
+
+                                }
+
+                                @Override
+                                public void onFinish() {
+                                    switch (vo.getSubmitItemStatus()) {
+                                        case 1: // success
+                                            showAlertDialogBox(EDIT_PROFILE_SUCCESS, SUCCESS, mContext, SUCCESS);
+                                            break;
+                                        case 2:
+                                            showAlertDialogBox(EDIT_PROFILE_ERROR, ERROR, mContext, ERROR);
+                                            break;
+                                        default:
+                                            showAlertDialogBox(CHECK_CONNECTION, ERROR, mContext, ERROR);
+                                            break;
+                                    }
+                                    hideProgressBar();
+                                }
+                            }.start();
+                        }else{
+                            showAlertDialogBox(COMPLETE_FIELD_VALIDATION,WARNING,mContext,WARNING);
+                        }
+                    }
+                });
+
+                MainDAO.getProductNameByEstId(Utility.getString("id",mContext),vo,mContext,"all_active");
+                new CountDownTimer(5000, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        ArrayAdapter<CharSequence> itemNameList = new ArrayAdapter(mContext, android.R.layout.simple_spinner_item, vo.get_itemNameList());
+                        final ArrayAdapter<CharSequence> categoryNameList = new ArrayAdapter(mContext, android.R.layout.simple_spinner_item, vo.get_itemCategory());
+                        final ArrayAdapter<CharSequence> statusList = ArrayAdapter.createFromResource(mContext, R.array.status, android.R.layout.simple_spinner_item);
+                        itemName.setAdapter(itemNameList);
+                        categoryName.setAdapter(categoryNameList);
+                        statusItem.setAdapter(statusList);
+
+                        itemName.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                showProgressBar("Getting information for " + parent.getItemAtPosition(position)+"...",mContext);
+                                getItemInformation(parent.getItemAtPosition(position).toString(),vo,categoryNameList,statusList);
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
+
+                        itemName.setSelection(0);
+                        getItemInformation(itemName.getSelectedItem().toString(),vo,categoryNameList,statusList);
+                        dialogBuilderEditItem.setView(dialogView);
+                        AlertDialog alertDialog = dialogBuilderEditItem.create();
+                        alertDialog.show();
+                        hideProgressBar();
+                    }
+                }.start();
             }
         });
+
         editCategory.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
             @Override
@@ -310,26 +420,14 @@ public class ActivityMain extends AppCompatActivity {
         if (requestCode == MY_CAMERA_PERMISSION_CODE) {
             for(int x = 0; x < permissions.length; x++) {
                 if (grantResults[x] == PackageManager.PERMISSION_GRANTED) {
-                    if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                        Intent cameraIntent = new
-                                Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                        startActivityForResult(cameraIntent, CAMERA_REQUEST);
-                    }
+
                 } else {
                 }
             }
         }
     }
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
-//            Bitmap photo = (Bitmap) data.getExtras().get("data");
-//            if(photo != null) {
-//                frontPicEdit.setImageBitmap(photo);
-//                Uri tempUri = getImageUri(mContext, photo);
-//                finalFile = new File(getRealPathFromURI(tempUri));
-//            }
-//        }
-        if(requestCode == PICK_PHOTO_REQUEST && resultCode == Activity.RESULT_OK){
+        if(requestCode == PICK_PHOTO_REQUEST_PROFILE && resultCode == Activity.RESULT_OK){
             Uri selectedImage = data.getData();
 
             Picasso.with(mContext)
@@ -339,6 +437,18 @@ public class ActivityMain extends AppCompatActivity {
                     .into(frontPicEdit);
             finalFile = new File(getRealPathFromURI(selectedImage));
             oldPath = finalFile.getPath();
+
+        }
+        if(requestCode == PICK_PHOTO_REQUEST_ITEM && resultCode == Activity.RESULT_OK){
+            Uri selectedImage = data.getData();
+
+            Picasso.with(mContext)
+                    .load(selectedImage)
+                    .error(R.drawable.default_image_thumbnail)
+                    .placeholder(R.drawable.default_image_thumbnail)
+                    .into(itemPicPath);
+            finalFileItem = new File(getRealPathFromURI(selectedImage));
+            oldPathItem = finalFileItem.getPath();
 
         }
     }
@@ -360,5 +470,30 @@ public class ActivityMain extends AppCompatActivity {
             }
         }
         return path;
+    }
+
+    public void getItemInformation(String itemName, final MainVO vo, final ArrayAdapter cat, final ArrayAdapter status){
+        MainDAO.getItemInformation(Utility.getString("id", mContext), itemName, vo, mContext);
+        new CountDownTimer(3000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                hideProgressBar();
+                categoryName.setSelection(cat.getPosition(vo.getItemCategory()));
+                statusItem.setSelection(status.getPosition(vo.getItemStatus()));
+                price.setText(Double.toString(vo.getPrice()));
+                itemId = Integer.parseInt(vo.getItemId());
+                oldPathItem = vo.getItemPicPath();
+                Picasso.with(mContext)
+                        .load(oldPathItem)
+                        .placeholder(R.drawable.default_image_thumbnail)
+                        .error(R.drawable.default_image_thumbnail)
+                        .into(itemPicPath);
+            }
+        }.start();
     }
 }

@@ -20,11 +20,13 @@ public class Constant {
     public static final String FAIL_GETTING_INFORMATION = "Fail getting information";
     public static final String GETTING_INFORMATION = "Getting Information...";
     public static final String EDIT_PROFILE_DIALOG_TITLE = "Edit Profile";
+    public static final String EDIT_ITEM_DIALOG_TITLE = "Edit Menu";
     public static final String EDIT_PROFILE_SUCCESS = "Edited...";
     public static final String EDIT_PROFILE_ERROR = "Error on submitting information...";
     public static final int MY_CAMERA_PERMISSION_CODE = 100;
     public static final int CAMERA_REQUEST = 1888;
-    public static final int PICK_PHOTO_REQUEST = 1999;
+    public static final int PICK_PHOTO_REQUEST_PROFILE = 1999;
+    public static final int PICK_PHOTO_REQUEST_ITEM = 1888;
     public static final String SUBMITTING = "Submiting...";
 
     //URL API
@@ -34,5 +36,8 @@ public class Constant {
     public static final String SUBMIT_CATEGORY = "http://darkened-career.000webhostapp.com/api/add_category";
     public static final String EST_TYPE = "http://darkened-career.000webhostapp.com/api/get_all_est_type";
     public static final String SUBMIT_EDITED_PROFILE = "http://darkened-career.000webhostapp.com/api/submit_edit_establishment_setting";
-
+    public static final String GET_EST_ITEM_NAME = "http://darkened-career.000webhostapp.com/api/get_product";
+    public static final String GET_CATEGORY_NAME = "http://darkened-career.000webhostapp.com/api/get_category";
+    public static final String GET_ITEM_INFORMATION = "http://darkened-career.000webhostapp.com/api/edit_product";
+    public static final String SUBMIT_EDITED_ITEM = "http://darkened-career.000webhostapp.com/api/submit_edited_product";
 }

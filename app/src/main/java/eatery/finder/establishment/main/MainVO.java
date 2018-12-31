@@ -21,6 +21,86 @@ public class MainVO {
     private int submitCategoryStatus;
     private int submitEditProfileStatus;
 
+    private double price;
+    private String ItemId;
+    private String itemStatus;
+    private String itemPicPath;
+    private String itemCategory;
+    private String itemName;
+    private int submitItemStatus;
+    private String[] _itemCategory;
+    private String[] _itemNameList;
+
+    public int getSubmitItemStatus() {
+        return submitItemStatus;
+    }
+
+    public void setSubmitItemStatus(int submitItemStatus) {
+        this.submitItemStatus = submitItemStatus;
+    }
+
+    public String getItemId() {
+        return ItemId;
+    }
+
+    public void setItemId(String setItemId) {
+        this.ItemId = setItemId;
+    }
+    public String getItemCategory() {
+        return itemCategory;
+    }
+
+    public void setItemCategory(String itemCategory) {
+        this.itemCategory = itemCategory;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
+
+    public String[] get_itemNameList() {
+        return _itemNameList;
+    }
+
+    public void set_itemNameList(String[] _itemNameList) {
+        this._itemNameList = _itemNameList;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public String getItemStatus() {
+        return itemStatus;
+    }
+
+    public void setItemStatus(String itemStatus) {
+        this.itemStatus = itemStatus;
+    }
+
+    public String getItemPicPath() {
+        return itemPicPath;
+    }
+
+    public void setItemPicPath(String itemPicPath) {
+        this.itemPicPath = itemPicPath;
+    }
+
+    public String[] get_itemCategory() {
+        return _itemCategory;
+    }
+
+    public void set_itemCategory(String[] _itemCategory) {
+        this._itemCategory = _itemCategory;
+    }
 
     public int getSubmitEditProfileStatus() {
         return submitEditProfileStatus;

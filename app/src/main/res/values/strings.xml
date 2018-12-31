@@ -16,6 +16,7 @@
     <string name="submit">Submit</string>
     <string name="take_photo">Take Photo</string>
     <string name="choose_photo_from_gallery">Choose Photo From Gallery</string>
+    <string name="price">Price</string>
 
     <string-array name="emotion_item">
         <item>HAPPY</item>
@@ -35,5 +36,9 @@
         <item>ADULT (25 – 59 yrs old)</item>
         <item>SENIOR (60 and Above yrs old)</item>
         <item>ALL</item>
+    </string-array>
+    <string-array name="status">
+        <item>ACTIVE</item>
+        <item>INACTIVE</item>
     </string-array>
 </resources>
