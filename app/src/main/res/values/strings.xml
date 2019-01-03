@@ -18,6 +18,8 @@
     <string name="choose_photo_from_gallery">Choose Photo From Gallery</string>
     <string name="price">Price</string>
     <string name="current_item_name">Current Item Name</string>
+    <string name="item_name">Item Name</string>
+    <string name="logout">Logout</string>
 
     <string-array name="emotion_item">
         <item>HAPPY</item>

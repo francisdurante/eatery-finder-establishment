@@ -33,6 +33,61 @@ public class MainVO {
     private int categoryId;
     private String categoryStatus;
     private int categoryEditStatus;
+    private int addItemResponseStatus;
+
+    private String[] _itemNameListView;
+    private String[] _itemCategoryListView;
+    private String[] _itemPriceListView;
+    private String[] _itemPicturePathListView;
+    private int viewMenuStatus;
+
+    public int getViewMenuStatus() {
+        return viewMenuStatus;
+    }
+
+    public void setViewMenuStatus(int viewMenuStatus) {
+        this.viewMenuStatus = viewMenuStatus;
+    }
+
+    public String[] get_itemNameListView() {
+        return _itemNameListView;
+    }
+
+    public void set_itemNameListView(String[] _itemNameListView) {
+        this._itemNameListView = _itemNameListView;
+    }
+
+    public String[] get_itemCategoryListView() {
+        return _itemCategoryListView;
+    }
+
+    public void set_itemCategoryListView(String[] _itemCategoryListView) {
+        this._itemCategoryListView = _itemCategoryListView;
+    }
+
+    public String[] get_itemPriceListView() {
+        return _itemPriceListView;
+    }
+
+    public void set_itemPriceListView(String[] _itemPriceListView) {
+        this._itemPriceListView = _itemPriceListView;
+    }
+
+    public String[] get_itemPicturePathListView() {
+        return _itemPicturePathListView;
+    }
+
+    public void set_itemPicturePathListView(String[] _itemPicturePath) {
+        this._itemPicturePathListView = _itemPicturePath;
+    }
+
+    public int getAddItemResponseStatus() {
+        return addItemResponseStatus;
+    }
+
+    public void setAddItemResponseStatus(int addItemResponseStatus) {
+        this.addItemResponseStatus = addItemResponseStatus;
+    }
 
     public int getCategoryEditStatus() {
         return categoryEditStatus;

@@ -237,13 +237,11 @@ public class MainDAO {
                 try {
                     JSONObject object = new JSONObject(response.toString());
                     String responseStatus = object.getString("status");
-                    System.out.println(responseStatus + " aaaaaaaaaaaa");
                     if("success".equals(responseStatus)){
                         JSONArray datas = new JSONArray(object.getString("data"));
                         String[] categoryName = new String[datas.length()];
                         for(int x = 0; x < datas.length(); x++){
                             categoryName[x] = datas.getJSONObject(x).getString("category_name");
-                            System.out.println(categoryName[x] + " aaaaaaaaaaaa");
                         }
                         vo.set_itemCategory(categoryName);
                     }
@@ -271,7 +269,6 @@ public class MainDAO {
                 try {
                     JSONObject object = new JSONObject(response.toString());
                     String responseStatus = object.getString("status");
-                    System.out.println(response.toString() + " aaaaaaaaaaaaaa");
                     if("success".equals(responseStatus)){
                         JSONObject data = object.getJSONObject("data");
                         vo.setItemId(data.getString("item_id"));
@@ -314,7 +311,6 @@ public class MainDAO {
                         try {
                             JSONObject object = new JSONObject(response.toString());
                             String responseStatus = object.getString("status");
-                            System.out.println(response.toString() + " aaaaaaaaaaaaa");
                             if ("success".equals(responseStatus)) {
                                 vo.setSubmitItemStatus(1);
                             } else {
@@ -396,6 +392,89 @@ public class MainDAO {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
 
+                }
+            });
+        }
+
+        public static void submitAddProduct(String estId, String productName, String productPathImage, String productCategory, String productPrice, final MainVO vo, Context context){
+            try {
+                RequestParams rp = new RequestParams();
+                AsyncHttpClient client = new AsyncHttpClient();
+                rp.put("imageOne", new File(productPathImage));
+                rp.put("product_name",productName);
+                rp.put("product_price",productPrice);
+                rp.put("product_cat",productCategory);
+                rp.put("est_id",estId);
+                rp.put("pass","add_product");
+                client.post(SUBMIT_ADD_PRODUCT, rp,new JsonHttpResponseHandler(){
+
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        try {
+                            JSONObject object = new JSONObject(response.toString());
+                            String responseStatus = object.getString("status");
+                            switch (responseStatus){
+                                case "success":
+                                    vo.setAddItemResponseStatus(1);
+                                    break;
+                                case "existing":
+                                    vo.setAddItemResponseStatus(2);
+                                    break;
+                                case "fail":
+                                    vo.setAddItemResponseStatus(3);
+                                    break;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                        super.onFailure(statusCode, headers, throwable, errorResponse);
+                    }
+                });
+            }catch (FileNotFoundException e){
+                showAlertDialogBox(e.getMessage(),ERROR,context,ERROR);
+            }
+        }
+        public static void getAllProductOfEst(String id, final Context context, final MainVO vo){
+            Api api = new Api();
+            RequestParams rp = new RequestParams();
+            rp.add("for_process","all_active");
+            rp.add("id",id);
+            rp.add("pass","get_product");
+            api.getByUrl(GET_ALL_PRODUCT_EST,rp,new JsonHttpResponseHandler(){
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    try {
+                        JSONObject object = new JSONObject(response.toString());
+                        String responseStatus = object.getString("status");
+                        if ("success".equals(responseStatus)) {
+                            JSONArray datas = new JSONArray(object.getString("data"));
+                            String[] itemName = new String[datas.length()];
+                            String[] itemPrice = new String[datas.length()];
+                            String[] itemCategory = new String[datas.length()];
+                            String[] itemPicPath = new String[datas.length()];
+
+                            if (datas.length() == 0) {
+                                vo.setViewMenuStatus(datas.length());
+                            } else {
+                                vo.setViewMenuStatus(datas.length());
+                                for (int x = 0; x < datas.length(); x++) {
+                                    itemName[x] = datas.getJSONObject(x).getString("item_name");
+                                    itemPrice[x] = datas.getJSONObject(x).getString("price");
+                                    itemCategory[x] = datas.getJSONObject(x).getString("category_name");
+                                    itemPicPath[x] = datas.getJSONObject(x).getString("path");
+                                }
+                                vo.set_itemNameListView(itemName);
+                                vo.set_itemPriceListView(itemPrice);
+                                vo.set_itemCategoryListView(itemCategory);
+                                vo.set_itemPicturePathListView(itemPicPath);
+                            }
+                        }
+                    } catch (JSONException e1) {
+                        e1.printStackTrace();
+                    }
                 }
             });
         }

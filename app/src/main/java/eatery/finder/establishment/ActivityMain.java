@@ -33,10 +33,6 @@ import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.sql.SQLOutput;
-import java.util.ArrayList;
-import java.util.Collection;
 
 import eatery.finder.establishment.main.MainDAO;
 import eatery.finder.establishment.main.MainVO;
@@ -49,8 +45,10 @@ public class ActivityMain extends AppCompatActivity {
     ImageView frontPicEdit;
     File finalFile;
     File finalFileItem;
+    File finalFileAddItem;
     String oldPath;
     String oldPathItem;
+    String oldPathAddItem = "";
     String newFilePath = "";
     String newFilePathFile = "";
     Spinner itemName;
@@ -62,6 +60,8 @@ public class ActivityMain extends AppCompatActivity {
     Spinner categoryStatus;
     AlertDialog.Builder dialogBuilderEditItem;
     int itemId;
+    ImageView imageAddMenu;
+    ImageView frontStore;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -85,7 +85,38 @@ public class ActivityMain extends AppCompatActivity {
         Button addCategory = findViewById(R.id.add_category);
         Button addMenu = findViewById(R.id.add_menu);
         Button viewMenu = findViewById(R.id.view_menu);
-        ImageView frontStore = findViewById(R.id.front_store);
+        Button logout = findViewById(R.id.logout);
+        frontStore = findViewById(R.id.front_store);
+
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder ab = new AlertDialog.Builder(ActivityMain.this);
+                ab.setTitle("Logging out");
+                ab.setMessage("Do you want to logout as " + Utility.getString("est_name",mContext));
+
+                ab.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        save("est_age","",mContext);
+                        save("est_emotion","",mContext);
+                        save("est_address","",mContext);
+                        save("est_id","",mContext);
+                        save("est_name","",mContext);
+                        save("est_user_id","",mContext);
+                        save("est_front_store_url","",mContext);
+                        save("id","",mContext);
+                        save("est_location_lat","",mContext);
+                        save("est_location_lon","",mContext);
+                        save("est_est_type_id","",mContext);
+                        startActivity(new Intent(mContext,ActivityLogin.class));
+                        finish();
+                    }
+                });
+                AlertDialog a = ab.create();
+                a.show();
+            }
+        });
 
         Picasso.with(mContext)
                 .load(picUrl(Utility.getString("est_front_store_url",mContext)))
@@ -293,7 +324,7 @@ public class ActivityMain extends AppCompatActivity {
                     }
                 });
 
-                MainDAO.getProductNameByEstId(Utility.getString("id",mContext),vo,mContext,"all_active");
+                MainDAO.getProductNameByEstId(Utility.getString("id",mContext),vo,mContext,"all");
                 new CountDownTimer(5000, 1000) {
                     @Override
                     public void onTick(long millisUntilFinished) {
@@ -493,13 +524,157 @@ public class ActivityMain extends AppCompatActivity {
         addMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final MainVO vo = new MainVO();
+                final AlertDialog.Builder dialogBuilderAddItem = new AlertDialog.Builder(mContext);
+                dialogBuilderAddItem.setTitle(ADD_ITEM_DIALOG_TITLE);
+                dialogBuilderAddItem.setIcon(R.drawable.ic_menu);
+                LayoutInflater inflater = getLayoutInflater();
+                final View dialogView = inflater.inflate(R.layout.add_menu, null);
+
+                final EditText itemNameAdd = dialogView.findViewById(R.id.item_name_add);
+                final Spinner itemCategoryAdd = dialogView.findViewById(R.id.item_category_choose_add);
+                final EditText priceAdd = dialogView.findViewById(R.id.price_add);
+                imageAddMenu = dialogView.findViewById(R.id.item_picture_add);
+                final Button selectImageAddItem = dialogView.findViewById(R.id.select_image_item_add);
+                final Button submitButtonAdd = dialogView.findViewById(R.id.submit_add_item);
+
+                MainDAO.getCategoryByEstId(Utility.getString("id",mContext),vo,mContext,"all_active");
+                showProgressBar(GETTING_INFORMATION,mContext);
+                new CountDownTimer(5000, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        try {
+                            hideProgressBar();
+                            selectImageAddItem.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent pickPhoto = new Intent(Intent.ACTION_PICK,
+                                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                    startActivityForResult(pickPhoto, PICK_PHOTO_REQUEST_ADD);
+                                }
+                            });
+                            submitButtonAdd.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if(!"".equals(itemNameAdd.getText().toString()) &&
+                                            !"".equals(itemCategoryAdd.getSelectedItem().toString())&&
+                                            !"".equals(priceAdd.getText().toString())&&
+                                            !"".equals(oldPathAddItem)){
+                                        showProgressBar(SUBMITTING,mContext);
+                                        MainDAO.submitAddProduct(Utility.getString("id",mContext),
+                                                itemNameAdd.getText().toString(),
+                                                oldPathAddItem,
+                                                itemCategoryAdd.getSelectedItem().toString(),
+                                                priceAdd.getText().toString(),
+                                                vo,
+                                                mContext);
+                                        new CountDownTimer(5000, 1000) {
+                                            @Override
+                                            public void onTick(long millisUntilFinished) {
+
+                                            }
+
+                                            @Override
+                                            public void onFinish() {
+                                                switch (vo.getAddItemResponseStatus()){
+                                                    case 1:
+                                                        showAlertDialogBox(SUCCESS,SUCCESS,mContext,SUCCESS);
+                                                        break;
+                                                    case 2:
+                                                        showAlertDialogBox(ITEM_EXISTING,WARNING,mContext,WARNING);
+                                                        break;
+                                                    case 3:
+                                                        showAlertDialogBox(ERROR,ERROR,mContext,ERROR);
+                                                        break;
+                                                    default:
+                                                        showAlertDialogBox(ERROR,ERROR,mContext,ERROR);
+                                                        break;
+                                                }
+                                                hideProgressBar();
+                                            }
+                                        }.start();
+
+                                    }else{
+                                        showAlertDialogBox(COMPLETE_FIELD_VALIDATION,WARNING,mContext,WARNING);
+                                    }
+                                }
+                            });
+                            ArrayAdapter<CharSequence> categoryAddItem = new ArrayAdapter(mContext, android.R.layout.simple_spinner_item, vo.get_itemCategory());
+                            itemCategoryAdd.setAdapter(categoryAddItem);
+                            dialogBuilderAddItem.setView(dialogView);
+                            AlertDialog alertDialog = dialogBuilderAddItem.create();
+                            alertDialog.show();
+                        }catch (Exception e){
+                            showAlertDialogBox(CHECK_CONNECTION,ERROR,mContext,ERROR);
+                        }
+
+                    }
+                }.start();
+//                hideProgressBar();
                 //redirect tot add menu
             }
         });
         viewMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //redirect to View menu
+                final MainVO vo = new MainVO();
+
+                final AlertDialog.Builder dialogBuilderAddItem = new AlertDialog.Builder(mContext);
+                dialogBuilderAddItem.setTitle(YOUR_MENU_ITEM);
+                dialogBuilderAddItem.setIcon(R.drawable.ic_menu);
+                final LayoutInflater inflater = getLayoutInflater();
+                final LayoutInflater layout = LayoutInflater.from(mContext);
+                final View dialogView = inflater.inflate(R.layout.view_menu, null);
+
+                final LinearLayout linearLayout = dialogView.findViewById(R.id.linear_view_menu);
+
+                showProgressBar(GETTING_INFORMATION,mContext);
+                MainDAO.getAllProductOfEst(Utility.getString("id",mContext),mContext,vo);
+                new CountDownTimer(5000, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {}
+
+                    @Override
+                    public void onFinish() {
+                        hideProgressBar();
+                        for (int x = 0; x < vo.getViewMenuStatus(); x++){
+                            View view = layout.inflate(R.layout.menu_view_layout,linearLayout,false);
+
+                            String[] picturePath;
+                            String[] itemName;
+                            String[] itemPrice;
+                            String[] itemCategory;
+
+                            picturePath = vo.get_itemPicturePathListView();
+                            itemName = vo.get_itemNameListView();
+                            itemPrice = vo.get_itemPriceListView();
+                            itemCategory = vo.get_itemCategoryListView();
+
+                            ImageView productImageView = view.findViewById(R.id.product_image_view);
+                            TextView itemNameView = view.findViewById(R.id.product_name_view);
+                            TextView itemCategoryView = view.findViewById(R.id.product_cat_view);
+                            TextView itemPriceView = view.findViewById(R.id.product_price_view);
+                            Picasso.with(mContext)
+                                    .load(picUrl(picturePath[x]))
+                                    .placeholder(R.drawable.default_image_thumbnail)
+                                    .into(productImageView);
+
+                            itemNameView.setText(itemName[x]);
+                            itemPriceView.setText("PHP " + itemPrice[x]);
+                            itemCategoryView.setText(itemCategory[x]);
+
+                            linearLayout.addView(view);
+                        }
+                        dialogBuilderAddItem.setView(dialogView);
+                        AlertDialog alertDialog = dialogBuilderAddItem.create();
+                        alertDialog.show();
+                    }
+                }.start();
             }
         });
     }
@@ -539,6 +714,17 @@ public class ActivityMain extends AppCompatActivity {
             finalFileItem = new File(getRealPathFromURI(selectedImage));
             oldPathItem = finalFileItem.getPath();
 
+        }
+        if(requestCode == PICK_PHOTO_REQUEST_ADD && resultCode == Activity.RESULT_OK){
+            Uri selectedImage = data.getData();
+
+            Picasso.with(mContext)
+                    .load(selectedImage)
+                    .error(R.drawable.default_image_thumbnail)
+                    .placeholder(R.drawable.default_image_thumbnail)
+                    .into(imageAddMenu);
+            finalFileAddItem = new File(getRealPathFromURI(selectedImage));
+            oldPathAddItem = finalFileAddItem.getPath();
         }
     }
     public Uri getImageUri(Context inContext, Bitmap inImage) {

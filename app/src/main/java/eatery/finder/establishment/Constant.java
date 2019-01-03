@@ -10,6 +10,7 @@ public class Constant {
     public static final String WARNING = "WARNING";
     public static final String ERROR = "ERROR";
     public static final String SUCCESS = "SUCCESS";
+    public static final String ITEM_EXISTING = "Item already in database.";
     public static final String ALERT_TITLE_ADD_CATEGORY = "Add Category";
     public static final String ALERT_MESSAGE_ADD_CATEGORY = "Please Input Category";
     public static final String CATEGORY_HINT = "Category name...";
@@ -22,12 +23,15 @@ public class Constant {
     public static final String EDIT_PROFILE_DIALOG_TITLE = "Edit Profile";
     public static final String EDIT_CATEGORY_DIALOG_TITLE = "Edit Category";
     public static final String EDIT_ITEM_DIALOG_TITLE = "Edit Menu";
+    public static final String ADD_ITEM_DIALOG_TITLE = "Add Menu";
+    public static final String YOUR_MENU_ITEM = "Your Menu";
     public static final String EDIT_PROFILE_SUCCESS = "Edited...";
     public static final String EDIT_PROFILE_ERROR = "Error on submitting information...";
     public static final int MY_CAMERA_PERMISSION_CODE = 100;
     public static final int CAMERA_REQUEST = 1888;
     public static final int PICK_PHOTO_REQUEST_PROFILE = 1999;
     public static final int PICK_PHOTO_REQUEST_ITEM = 1888;
+    public static final int PICK_PHOTO_REQUEST_ADD = 1777;
     public static final String SUBMITTING = "Submiting...";
 
     //URL API
@@ -43,4 +47,6 @@ public class Constant {
     public static final String SUBMIT_EDITED_ITEM = "http://darkened-career.000webhostapp.com/api/submit_edited_product";
     public static final String GET_CATEGORY_INFORMATION = "http://darkened-career.000webhostapp.com/api/edit_category";
     public static final String SUBMIT_EDITED_CATEGORT = "http://darkened-career.000webhostapp.com/api/submit_edited_category";
+    public static final String SUBMIT_ADD_PRODUCT = "http://darkened-career.000webhostapp.com/api/add_product";
+    public static final String GET_ALL_PRODUCT_EST = "http://darkened-career.000webhostapp.com/api/get_est_product";
 }

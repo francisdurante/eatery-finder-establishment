@@ -10,7 +10,12 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:padding="15sp">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:src="#000"/>
             <Spinner
                 android:id="@+id/item_name_edit"
                 android:layout_width="match_parent"
